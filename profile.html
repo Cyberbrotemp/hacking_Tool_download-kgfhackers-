@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #121212; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 400px; margin: auto; background: #222; padding: 20px; border-radius: 10px; }
+        .profile-img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px; }
+        .btn { padding: 10px; width: 100%; border: none; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        .btn.logout { background: red; color: white; }
+        .btn.remove { background: orange; color: white; }
+        .btn.download { background: green; color: white; }
+        .saved-tools { margin-top: 20px; }
+        .tool { display: flex; flex-direction: column; align-items: center; background: #333; padding: 10px; margin-top: 10px; border-radius: 5px; }
+        .tool img { width: 100px; height: 100px; border-radius: 5px; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>User Profile</h2>
+        <img id="profilePic" class="profile-img" src="" alt="Profile Picture">
+        <p><strong>Name:</strong> <span id="profileName"></span></p>
+        <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+
+        <h3>Saved Tools</h3>
+        <div id="savedTools" class="saved-tools"></div>
+
+        <button class="btn logout" onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem("users")) || {};
+        let loggedInUser = localStorage.getItem("loggedInUser");
+
+        if (!loggedInUser) {
+            window.location.href = "index.html";
+        } else {
+            const user = users[loggedInUser];
+            document.getElementById("profilePic").src = user.profilePic || "https://via.placeholder.com/100";
+            document.getElementById("profileName").innerText = loggedInUser;
+            document.getElementById("profileEmail").innerText = user.email || "No Email Provided";
+            loadSavedTools();
+        }
+
+        function loadSavedTools() {
+            const savedToolsDiv = document.getElementById("savedTools");
+            savedToolsDiv.innerHTML = "";
+
+            let savedTools = users[loggedInUser].savedTools || [];
+            let toolImages = JSON.parse(localStorage.getItem("toolImages")) || {}; // Retrieve images
+
+            if (savedTools.length === 0) {
+                savedToolsDiv.innerHTML = "<p>No tools saved.</p>";
+                return;
+            }
+
+            savedTools.forEach(tool => {
+                let toolDiv = document.createElement("div");
+                toolDiv.classList.add("tool");
+
+                let toolImage = document.createElement("img");
+                toolImage.src = toolImages[tool] || "default_tool_image.jpg"; // Use saved image or default
+                toolDiv.appendChild(toolImage);
+
+                let toolName = document.createElement("p");
+                toolName.innerText = tool;
+                toolDiv.appendChild(toolName);
+
+                let downloadButton = document.createElement("button");
+                downloadButton.classList.add("btn", "download");
+                downloadButton.innerText = "Download";
+                downloadButton.onclick = function() {
+                    window.location.href = `web.html?tool=${encodeURIComponent(tool)}`;
+                };
+                toolDiv.appendChild(downloadButton);
+
+                let removeButton = document.createElement("button");
+                removeButton.classList.add("btn", "remove");
+                removeButton.innerText = "Remove";
+                removeButton.onclick = function() {
+                    removeTool(tool);
+                };
+                toolDiv.appendChild(removeButton);
+
+                savedToolsDiv.appendChild(toolDiv);
+            });
+        }
+
+        function removeTool(toolName) {
+            users[loggedInUser].savedTools = users[loggedInUser].savedTools.filter(tool => tool !== toolName);
+            localStorage.setItem("users", JSON.stringify(users));
+
+            let toolImages = JSON.parse(localStorage.getItem("toolImages")) || {};
+            delete toolImages[toolName]; // Remove tool image
+            localStorage.setItem("toolImages", JSON.stringify(toolImages));
+
+            loadSavedTools();
+            alert(`${toolName} removed from saved tools.`);
+        }
+
+        function logout() {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "web.html";
+        }
+    </script>
+
+</body>
+</html>
