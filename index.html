@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register/Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #121212; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 400px; margin: auto; background: #222; padding: 20px; border-radius: 10px; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        input { background: #333; color: white; }
+        button { cursor: pointer; }
+        .btn-register { background: blue; color: white; }
+        .btn-login { background: green; color: white; }
+        .profile-img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px; border: 3px solid white; }
+        #fileInput { display: none; }
+        .btn-upload { background: purple; color: white; }
+    </style>
+</head>
+<body>
+
+    <!-- Register/Login Form -->
+    <div id="authContainer" class="container">
+        <h2>Register / Login</h2>
+        <input type="text" id="username" placeholder="Enter Username">
+        <input type="email" id="email" placeholder="Enter Email">
+        <input type="password" id="password" placeholder="Enter Password">
+        
+        <!-- Profile Picture Upload -->
+        <input type="file" id="fileInput" accept="image/*" onchange="uploadImage()">
+        <button class="btn-upload" onclick="document.getElementById('fileInput').click();">Upload Profile Picture</button>
+        <img id="previewImg" class="profile-img" src="https://via.placeholder.com/100" alt="Profile Picture">
+
+        <button class="btn-register" onclick="register()">Register</button>
+        <button class="btn-login" onclick="login()">Login</button>
+    </div>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem("users")) || {};
+        let loggedInUser = localStorage.getItem("loggedInUser");
+
+        function uploadImage() {
+            let file = document.getElementById("fileInput").files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("previewImg").src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function register() {
+            let username = document.getElementById("username").value;
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+            let profilePic = document.getElementById("previewImg").src;
+
+            if (!username || !email || !password) {
+                alert("All fields are required!");
+                return;
+            }
+
+            if (users[username]) {
+                alert("Username already exists!");
+                return;
+            }
+
+            users[username] = { email: email, password: password, profilePic: profilePic };
+            localStorage.setItem("users", JSON.stringify(users));
+            localStorage.setItem("loggedInUser", username);
+            alert("Registration successful!");
+            window.location.href = "profile.html";
+        }
+
+        function login() {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+
+            if (!users[username] || users[username].password !== password) {
+                alert("Invalid username or password!");
+                return;
+            }
+
+            localStorage.setItem("loggedInUser", username);
+            alert("Login successful!");
+            window.location.href = "profile.html";
+        }
+    </script>
+
+</body>
+</html>
