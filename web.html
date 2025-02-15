@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker Tools Download</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #121212; color: white; text-align: center; }
+        .container { max-width: 600px; margin: 50px auto; padding: 20px; background: #222; border-radius: 10px; }
+        input, button, select { width: 100%; margin: 10px 0; padding: 10px; font-size: 16px; }
+        button { background: #ff6600; color: white; border: none; cursor: pointer; }
+        button:hover { background: #ff4500; }
+        .tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 20px; }
+        .tool { width: 200px; padding: 10px; background: #333; border-radius: 10px; text-align: center; transition: 0.3s ease; }
+        .tool:hover { transform: scale(1.05); }
+        .tool img { width: 100%; border-radius: 10px; }
+        .download-btn, .info-btn, .save-btn { padding: 8px; border: none; cursor: pointer; width: 100%; margin-top: 5px; }
+        .download-btn { background: green; color: white; }
+        .info-btn { background: orange; color: white; }
+        .save-btn { background: blue; color: white; }
+        .header { display: flex; justify-content: space-between; padding: 10px; background: #333; }
+        .profile { display: flex; align-items: center; gap: 10px; }
+        .profile img { width: 50px; height: 50px; border-radius: 50%; }
+        #viewToggle { margin: 10px; }
+        .grid-view .tool { width: 200px; }
+        .list-view { flex-direction: column; }
+        .list-view .tool { width: 100%; text-align: left; display: flex; align-items: center; }
+        .list-view .tool img { width: 80px; margin-right: 10px; }
+
+        /* Custom Alert Box */
+        .custom-alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 90% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Hacker Tools Download</h1>
+        <div class="profile" id="userProfile" style="display: none;">
+            <img id="profilePic" src="">
+            <span id="profileName"></span>
+            <a href="profile.html"><button>Profile</button></a>
+        </div>
+    </div>
+
+    <div class="container" id="auth">
+        <h2>Login</h2>
+        <select id="usernameSelect"></select>
+        <input type="password" id="password" placeholder="Enter Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <button id="viewToggle" onclick="toggleView()">Switch View</button>
+
+    <!-- Custom Alert Box -->
+    <div id="customAlert" class="custom-alert"></div>
+
+    <div id="toolSection" style="display: none;">
+        <h2>Saved Tools</h2>
+        <div class="tools" id="savedTools"></div>
+
+        <h2>Python Hacking Scripts</h2>
+        <div class="tools">
+            <div class="tool">
+                <img src="https://blog.jetbrains.com/wp-content/uploads/2023/05/set_breakpoint-2.gif" alt="Python Tool">
+                <p>Python Brute Force</p>
+                <button class="download-btn">Download</button>
+                <button class="info-btn">Info</button>
+                <button class="save-btn" onclick="saveTool('Python Brute Force')">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem("users")) || {};
+        let loggedInUser = localStorage.getItem("loggedInUser");
+
+        function loadUsers() {
+            const usernameSelect = document.getElementById("usernameSelect");
+            usernameSelect.innerHTML = Object.keys(users).map(user => `<option value="${user}">${user}</option>`).join("");
+        }
+
+        function login() {
+            const username = document.getElementById("usernameSelect").value;
+            const password = document.getElementById("password").value;
+
+            if (!users[username] || users[username].password !== password) {
+                return showAlert("Invalid username or password!", "red");
+            }
+
+            localStorage.setItem("loggedInUser", username);
+            showProfile(username);
+            document.getElementById("auth").style.display = "none";
+            document.getElementById("toolSection").style.display = "block";
+            showAlert(`Welcome back, ${username}!`, "green");
+
+            loadSavedTools();
+        }
+
+        function showProfile(username) {
+            document.getElementById("profilePic").src = users[username]?.profilePic || "https://via.placeholder.com/50";
+            document.getElementById("profileName").innerText = username;
+            document.getElementById("userProfile").style.display = "flex";
+        }
+
+        function saveTool(toolName) {
+            if (!loggedInUser) return showAlert("Please log in to save tools!", "red");
+
+            if (!users[loggedInUser].savedTools) {
+                users[loggedInUser].savedTools = [];
+            }
+
+            if (!users[loggedInUser].savedTools.includes(toolName)) {
+                users[loggedInUser].savedTools.push(toolName);
+                localStorage.setItem("users", JSON.stringify(users));
+                showAlert(`${toolName} saved!`, "blue");
+                loadSavedTools();
+            } else {
+                showAlert("Tool already saved!", "yellow");
+            }
+        }
+
+        function loadSavedTools() {
+            const savedToolsContainer = document.getElementById("savedTools");
+            savedToolsContainer.innerHTML = "";
+
+            if (loggedInUser && users[loggedInUser]?.savedTools?.length > 0) {
+                users[loggedInUser].savedTools.forEach(tool => {
+                    const toolDiv = document.createElement("div");
+                    toolDiv.classList.add("tool");
+                    toolDiv.innerHTML = `
+                        <p>${tool}</p>
+                        <button class="download-btn">Download</button>
+                        <button class="info-btn">Info</button>
+                    `;
+                    savedToolsContainer.appendChild(toolDiv);
+                });
+            }
+        }
+
+        function toggleView() {
+            const toolsContainer = document.querySelector(".tools");
+            toolsContainer.classList.toggle("list-view");
+            showAlert("View switched!", "orange");
+        }
+
+        function showAlert(message, color) {
+            const alertBox = document.getElementById("customAlert");
+            alertBox.innerText = message;
+            alertBox.style.background = color;
+            alertBox.style.display = "block";
+            setTimeout(() => alertBox.style.display = "none", 3000);
+        }
+
+        if (loggedInUser) {
+            showProfile(loggedInUser);
+            document.getElementById("auth").style.display = "none";
+            document.getElementById("toolSection").style.display = "block";
+            loadSavedTools();
+        }
+
+        loadUsers();
+    </script>
+
+</body>
+</html>
