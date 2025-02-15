@@ -30,6 +30,7 @@
         <div id="savedTools" class="saved-tools"></div>
 
         <button class="btn logout" onclick="logout()">Logout</button>
+           <button class="btn tools" onclick="tools()">tool(hacking)</button>
     </div>
 
     <script>
@@ -104,6 +105,10 @@
 
         function logout() {
             localStorage.removeItem("loggedInUser");
+            window.location.href = "index.html";
+        }
+           function tools() {
+         
             window.location.href = "web.html";
         }
     </script>
